@@ -549,7 +549,7 @@ define([
       });
     },
     balanceChangeBreakdown: function () {
-      return mockData.balanceChangeBreakdown;
+      return _.cloneDeep(mockData.balanceChangeBreakdown);
     },
     workDayForDate: function () {
       return mockData.workDayForDate;

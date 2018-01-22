@@ -534,6 +534,26 @@ define([
           });
         });
 
+        describe('when original balance change has changed', function () {
+          beforeEach(function () {
+            var currentBreakdown = leaveRequestData.balanceChangeBreakdown();
+
+            currentBreakdown['amount']++;
+
+            spyOn(leaveRequest, action).and.returnValue($q.resolve());
+            spyOn(leaveRequest, 'calculateBalanceChange').and.returnValue($q.resolve(currentBreakdown));
+            controller.action(action);
+            $rootScope.$digest();
+          });
+
+          it('asks if user would like to proceed with balance recalculation', function () {
+            expect(dialog.open)
+              .toHaveBeenCalledWith(jasmine.objectContaining({
+                title: 'Recalculate Balance Change?'
+              }));
+          });
+        });
+
         describe('when the action is rejected by server', function () {
           beforeEach(function () {
             spyOn(leaveRequest, action).and.returnValue($q.reject());
