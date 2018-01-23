@@ -9,6 +9,7 @@ abstract class CRM_HRCore_Test_BaseHeadlessTest extends PHPUnit_Framework_TestCa
   public function setUpHeadless() {
     return \Civi\Test::headless()
       ->installMe(__DIR__)
+      ->install('uk.co.compucorp.civicrm.hrcontactactionsmenu')
       ->apply();
   }
 
