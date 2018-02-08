@@ -31,7 +31,6 @@ class CRM_Hrjobcontract_BAO_HRJobContract extends CRM_Hrjobcontract_DAO_HRJobCon
     if ($deleted)
     {
         CRM_Hrjobcontract_JobContractDates::removeDates($instance->id);
-        self::updateLengthOfService($instance->contact_id);
     }
 
     if (function_exists('module_exists') && module_exists('rules')) {
@@ -279,71 +278,13 @@ class CRM_Hrjobcontract_BAO_HRJobContract extends CRM_Hrjobcontract_DAO_HRJobCon
   }
 
   /**
-   * Update Length of Service for specific Contact.
-   *
-   * @param int $contactId
-   *
-   * @return bool
-   */
-  public static function updateLengthOfService($contactId) {
-    // Get Length of Service's Custom Field ID.
-    $customGroupID = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_CustomGroup', 'Contact_Length_Of_Service', 'id', 'name');
-    $customField = civicrm_api3(
-      'CustomField',
-      'getsingle',
-      array(
-        'custom_group_id' => $customGroupID,
-        'name' => 'Length_Of_Service'
-      )
-    );
-    $customFieldID = $customField['id'];
-    // Get Length of Service for the Contact.
-    $lengthOfService = self::calculateLengthOfService($contactId);
-    // Update the Length of Service for the Contact.
-    civicrm_api3('Contact', 'create', array(
-      'id' => $contactId,
-      'custom_' . $customFieldID => $lengthOfService,
-    ));
-    return TRUE;
-  }
-
-  /**
-   * Update Length of Service for all Individual Contacts.
-   *
-   * @return bool
-   */
-  public static function updateLengthOfServiceAllContacts() {
-    // Get all Individual Contacts.
-    $contacts = civicrm_api3('Contact', 'get', array(
-      'sequential' => 1,
-      'contact_type' => 'Individual',
-      'options' => array('limit' => 0),
-    ));
-    foreach ($contacts['values'] as $contact) {
-      // Update the Length of Service of the Contact.
-      self::updateLengthOfService($contact['id']);
-    }
-    return TRUE;
-
-  }
-
-  /**
    * Get Length of Service value in days for specific Contact ID.
    *
-   * @param type $contactId
+   * @param int $contactId
    * @return int
    */
   public static function getLengthOfService($contactId) {
-    $result = CRM_Core_DAO::executeQuery(
-      'SELECT length_of_service FROM `civicrm_value_length_of_service_11` WHERE entity_id = %1 LIMIT 1',
-      array(
-        1 => array($contactId, 'Integer'),
-      )
-    );
-    if ($result->fetch()) {
-      return (int)$result->length_of_service;
-    }
-    return 0;
+    return self::calculateLengthOfService($contactId);
   }
 
   /**
@@ -821,7 +762,6 @@ class CRM_Hrjobcontract_BAO_HRJobContract extends CRM_Hrjobcontract_DAO_HRJobCon
 
       $contract->delete();
       CRM_Hrjobcontract_JobContractDates::removeDates($contractId);
-      self::updateLengthOfService($contactId);
     } catch(Exception $e) {
       $transaction->rollback();
       throw new Exception($e);
