@@ -1112,6 +1112,44 @@ class CRM_Hrjobcontract_Upgrader extends CRM_Hrjobcontract_Upgrader_Base {
   }
 
   /**
+   * Removes custom group and scheduled job for contact length of service
+   */
+  public function upgrade_1034() {
+    $this->removeLengthOfServiceCustomGroup();
+    $this->removeLengthOfServiceScheduledJob();
+  }
+
+  /**
+   * Removes the 'Contact_Length_Of_Service' custom group
+   */
+  private function removeLengthOfServiceCustomGroup() {
+    $groupName = 'Contact_Length_Of_Service';
+    $customGroup = civicrm_api3('CustomGroup', 'get', ['name' => $groupName]);
+
+    if ($customGroup['count'] != 1) {
+      return;
+    }
+
+    $customGroupId = $customGroup['id'];
+    civicrm_api3('CustomGroup', 'delete', ['id' => $customGroupId]);
+  }
+
+  /**
+   * Removes the scheduled job to update contact length of service
+   */
+  private function removeLengthOfServiceScheduledJob() {
+    $actionName = 'updatelengthofservice';
+    $job = civicrm_api3('Job', 'get', ['api_action' => $actionName]);
+
+    if ($job['count'] != 1) {
+      return;
+    }
+
+    $jobId = $job['id'];
+    civicrm_api3('Job', 'delete', ['id' => $jobId]);
+  }
+
+  /**
    * Removes the "Pension Type" item from the
    *  "Administer -> Customize Data and Screens -> Dropdowns" menu
    *
