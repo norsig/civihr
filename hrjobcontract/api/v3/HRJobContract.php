@@ -128,25 +128,6 @@ function civicrm_api3_h_r_job_contract_getlengthofserviceymd($params) {
 }
 
 /**
- * HRJobContract.updatelengthofservice
- *
- * Update Length of Service values for specific 'contact_id' or for every Contact
- * if $params['contact_id'] is not specified.
- *
- * @param array $params
- * @return array API result descriptor
- * @throws API_Exception
- */
-function civicrm_api3_h_r_job_contract_updatelengthofservice($params) {
-  if (empty($params['contact_id'])) {
-    $result = CRM_Hrjobcontract_BAO_HRJobContract::updateLengthOfServiceAllContacts();
-  } else {
-    $result = CRM_Hrjobcontract_BAO_HRJobContract::updateLengthOfService($params['contact_id']);
-  }
-  return civicrm_api3_create_success($result, $params);
-}
-
-/**
  * HRJobContract.getContractsWithDetailsInPeriod API specification
  *
  * @param array $spec description of fields supported by this API call
