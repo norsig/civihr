@@ -742,14 +742,6 @@ class CRM_Hrjobcontract_Upgrader extends CRM_Hrjobcontract_Upgrader_Base {
   }
 
   /**
-   * Install 'length_of_service' Custom Field for 'Individual' Contact entity.
-   */
-  function upgrade_1012() {
-      $this->executeCustomDataFile('xml/length_of_service.xml');
-      return TRUE;
-  }
-
-  /**
    * Add 'effective_end_date' field to Job Contract Revisions table
    * and generate effective end date values for current Job Contracts Revisions.
    * Also add 'overrided' field to Job Contract Revisions table
@@ -769,32 +761,6 @@ class CRM_Hrjobcontract_Upgrader extends CRM_Hrjobcontract_Upgrader_Base {
     $jobcontracts = CRM_Core_DAO::executeQuery($query);
     while ($jobcontracts->fetch()) {
         CRM_Hrjobcontract_BAO_HRJobContractRevision::updateEffectiveEndDates($jobcontracts->id);
-    }
-    return TRUE;
-  }
-
-  /**
-   * Create a CiviCRM daily scheduled job which updates Contacts length of service values.
-   *
-   * @return TRUE
-   */
-  function upgrade_1014() {
-    $dao = new CRM_Core_DAO_Job();
-    $dao->api_entity = 'HRJobContract';
-    $dao->api_action = 'updatelengthofservice';
-    $dao->find(TRUE);
-    if (!$dao->id)
-    {
-      $dao = new CRM_Core_DAO_Job();
-      $dao->domain_id = CRM_Core_Config::domainID();
-      $dao->run_frequency = 'Daily';
-      $dao->parameters = null;
-      $dao->name = 'Length of service updater';
-      $dao->description = 'Updates Length of service value for each Contact';
-      $dao->api_entity = 'HRJobContract';
-      $dao->api_action = 'updatelengthofservice';
-      $dao->is_active = 1;
-      $dao->save();
     }
     return TRUE;
   }
@@ -890,18 +856,6 @@ class CRM_Hrjobcontract_Upgrader extends CRM_Hrjobcontract_Upgrader_Base {
 
     return true;
   }
-
-  /**
-   * Upgrade Length of Service values.
-   *
-   * @return TRUE
-   */
-  function upgrade_1019() {
-    CRM_Hrjobcontract_BAO_HRJobContract::updateLengthOfServiceAllContacts();
-
-    return true;
-  }
-
 
   /**
    * Create civicrm_hrpay_scale table and its default data if it is not exist
@@ -1506,5 +1460,4 @@ class CRM_Hrjobcontract_Upgrader extends CRM_Hrjobcontract_Upgrader_Base {
   private function commonDivisor($a,$b) {
     return ($a % $b) ? CRM_Hrjobcontract_Upgrader::commonDivisor($b,$a % $b) : $b;
   }
-
 }
